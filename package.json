@@ -1,0 +1,16 @@
+{
+  "name": "what-to-eat-this-week",
+  "version": "1.0.0",
+  "description": "an application that will tell you what ingredients are currently in season",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Harry Bedford",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.1",
+    "nodemon": "^2.0.4"
+  }
+}
