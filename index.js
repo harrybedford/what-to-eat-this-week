@@ -1,34 +1,20 @@
 const express = require('express')
 const ingredients = require('./data')
-const ingredient = require('./models')
 const app = express()
 
-const getIngredient = (category) => (month = new Date().getMonth()) => {
-  const availableIngredients = []
-  for (const ingredient of ingredients) {
-    if (ingredient.category === category && ingredient.months.indexOf(month) >= 0) {
-      availableIngredients.push(ingredient.name)
-    }
-  }
-  if (availableIngredients.length) return availableIngredients
-  return `Sorry there is no ${category} available this month`
-}
-
-const getMakeTheMostOf = (month = new Date().getMonth()) => {
+const getMakeTheMostOf = (availableIngredients = []) => {
   const makeTheMostOf = []
-  for (const ingredient of ingredients) {
-    if (ingredient.months.indexOf(month) >= 0) {
-      if (ingredient.months.length <= 3) {
-        makeTheMostOf.push(ingredient.name)
-      }
+  for (const ingredient of availableIngredients) {
+    if (ingredient.months.length <= 3) {
+      makeTheMostOf.push(ingredient.name)
     }
   }
   return makeTheMostOf
 }
 
-const getLastChanceFor = (month = new Date().getMonth()) => {
+const getLastChanceFor = (availableIngredients = [], month) => {
   const lastChanceFor = []
-  for (const ingredient of ingredients) {
+  for (const ingredient of availableIngredients) {
     if (ingredient.months[ingredient.months.length - 1] === month) {
       lastChanceFor.push(ingredient.name)
     }
@@ -36,9 +22,9 @@ const getLastChanceFor = (month = new Date().getMonth()) => {
   return lastChanceFor
 }
 
-const getNewInSeason = (month = new Date().getMonth()) => {
+const getNewInSeason = (availableIngredients = [], month) => {
   const newInSeason = []
-  for (const ingredient of ingredients) {
+  for (const ingredient of availableIngredients) {
     if (ingredient.months[0] === month) {
       newInSeason.push(ingredient.name)
     }
@@ -46,14 +32,34 @@ const getNewInSeason = (month = new Date().getMonth()) => {
   return newInSeason
 }
 
-const getComingIntoSeason = (month = new Date().getMonth()) => {
+const getYearRound = (availableIngredients = []) => {
+  const yearRound = []
+  for (const ingredient of availableIngredients) {
+    if (ingredient.months.length === 12) {
+      yearRound.push(ingredient.name)
+    }
+  }
+  return yearRound
+}
+
+const getIngredient = (category) => (month = new Date().getMonth()) => {
+  const availableIngredients = []
   const comingIntoSeason = []
   for (const ingredient of ingredients) {
-    if (ingredient.shoulder.indexOf(month) >= 0) {
+    if (ingredient.category === category && ingredient.months.indexOf(month) >= 0) {
+      availableIngredients.push(ingredient)
+    } else if (ingredient.category === category && ingredient.shoulder.indexOf(month) >= 0) {
       comingIntoSeason.push(ingredient.name)
     }
   }
-  return comingIntoSeason
+  return {
+    inSeason: availableIngredients.map(ingredient => ingredient.name),
+    makeTheMostOf: getMakeTheMostOf(availableIngredients),
+    lastChanceFor: getLastChanceFor(availableIngredients, month),
+    newInSeason: getNewInSeason(availableIngredients, month),
+    comingIntoSeason,
+    yearRound: getYearRound(availableIngredients),
+  }
 }
 
 const getMeats = getIngredient('meat')
@@ -63,34 +69,55 @@ const getVegetables = getIngredient('vegetable')
 const getHerbs = getIngredient('herb')
 const getSpices = getIngredient('spice')
 
-const htmlResponse = `
-  Meat: ${getMeats()}<br />
-  Fish: ${getFish()}<br />
-  Fruit: ${getFruits()}<br />
-  Vegetables: ${getVegetables()}<br />
-  Herbs: ${getHerbs()}<br />
-  Spices: ${getSpices()}<br />
-  Make the most of: ${getMakeTheMostOf()}<br />
-  Last chance for: ${getLastChanceFor()}<br />
-  New in season: ${getNewInSeason()}<br />
-  Coming into season: ${getComingIntoSeason()}
-`
 
-const jsonResponse = {
-  meat: getMeats(),
-  fish: getFish(),
-  fruit: getFruits(),
-  vegetables: getVegetables(),
-  herbs: getHerbs(),
-  spices: getSpices(),
-  makeTheMostOf: getMakeTheMostOf(),
-  lastChanceFor: getLastChanceFor(),
-  newInSeason: getNewInSeason(),
-  comingIntoSeason: getComingIntoSeason(),
-}
+const getJsonResponse = (month) => ({
+  meat: getMeats(month),
+  fish: getFish(month),
+  fruit: getFruits(month),
+  vegetables: getVegetables(month),
+  herbs: getHerbs(month),
+  spices: getSpices(month),
+})
 
 app.get('/', (req, res) => {
-  res.send(jsonResponse)
+  res.send(getJsonResponse())
+})
+
+app.get('/january', (req, res) => {
+  res.send(getJsonResponse(0))
+})
+app.get('/february', (req, res) => {
+  res.send(getJsonResponse(1))
+})
+app.get('/march', (req, res) => {
+  res.send(getJsonResponse(2))
+})
+app.get('/april', (req, res) => {
+  res.send(getJsonResponse(3))
+})
+app.get('/may', (req, res) => {
+  res.send(getJsonResponse(4))
+})
+app.get('/june', (req, res) => {
+  res.send(getJsonResponse(5))
+})
+app.get('/july', (req, res) => {
+  res.send(getJsonResponse(6))
+})
+app.get('/august', (req, res) => {
+  res.send(getJsonResponse(7))
+})
+app.get('/september', (req, res) => {
+  res.send(getJsonResponse(8))
+})
+app.get('/october', (req, res) => {
+  res.send(getJsonResponse(9))
+})
+app.get('/november', (req, res) => {
+  res.send(getJsonResponse(10))
+})
+app.get('/december', (req, res) => {
+  res.send(getJsonResponse(11))
 })
 
 app.listen(3000, () => console.log(`App running`))
